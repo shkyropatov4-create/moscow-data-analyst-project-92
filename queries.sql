@@ -1,20 +1,14 @@
 select count(customer_id) as customers_count
 from customers;
 --запрос, который считает общее количество покупателей из таблицы customers
-
 select
     concat(e.first_name, ' ', e.last_name) as seller,
     count(s.sales_id) as operations,
     floor(sum(p.price * s.quantity)) as income
 from sales s
-inner join employees e
-    on s.sales_person_id = e.employee_id
-inner join products p
-    on s.product_id = p.product_id
-group by
-    e.employee_id,
-    e.first_name,
-    e.last_name
+join employees e on s.sales_person_id = e.employee_id
+join products p on s.product_id = p.product_id
+group by e.employee_id, e.first_name, e.last_name
 order by income desc
 limit 10;
 -- Отчет: Десятка лучших продавцов по суммарной выручке.
@@ -26,7 +20,6 @@ limit 10;
 -- Группируем данные по каждому продавцу для агрегации показателей,
 -- Сортируем результат по выручке от большей к меньшей,
 -- Ограничиваем результат 10 записями (топ-10 продавцов).
-
 with seller_stats as (
     select
         e.employee_id,
@@ -35,29 +28,18 @@ with seller_stats as (
         sum(p.price * s.quantity) as total_income,
         floor(sum(p.price * s.quantity) / count(s.sales_id)) as avg_income
     from sales s
-    inner join employees e
-        on s.sales_person_id = e.employee_id
-    inner join products p
-        on s.product_id = p.product_id
-    group by
-        e.employee_id,
-        e.first_name,
-        e.last_name
-),
-
+    join employees e on s.sales_person_id = e.employee_id
+    join products p on s.product_id = p.product_id
+    group by e.employee_id, e.first_name, e.last_name),
 overall_avg as (
     select
-        floor(avg(p.price * s.quantity)) as overall_avg_income
+    floor(avg(p.price * s.quantity)) as overall_avg_income
     from sales s
-    inner join products p
-        on s.product_id = p.product_id
-)
-
-select
+    join products p on s.product_id = p.product_id)
+select 
     ss.seller,
     ss.avg_income as average_income
-from seller_stats ss
-cross join overall_avg oa
+from seller_stats ss, overall_avg oa
 where ss.avg_income < oa.overall_avg_income
 order by ss.avg_income asc;
 -- Отчет: Продавцы со средней выручкой за сделку ниже общей средней.
@@ -72,23 +54,20 @@ order by ss.avg_income asc;
 -- Основной запрос, который сравнивает показатели продавцов с общей средней.
 -- Фильтруем только тех продавцов, чья средняя выручка ниже общей средней по компании,
 -- Сортируем по возрастанию средней выручки - от наименьшей к наибольшей.
-
 select
     concat(e.first_name, ' ', e.last_name) as seller,
     lower(to_char(s.sale_date, 'day')) as day_of_week,
     floor(sum(p.price * s.quantity)) as income
 from sales s
-inner join employees e
-    on s.sales_person_id = e.employee_id
-inner join products p
-    on s.product_id = p.product_id
-group by
+join employees e on s.sales_person_id = e.employee_id
+join products p on s.product_id = p.product_id
+group by 
     e.employee_id,
     e.first_name,
     e.last_name,
     to_char(s.sale_date, 'day'),
     extract(dow from s.sale_date)
-order by
+order by 
     extract(dow from s.sale_date),
     seller;
 -- Отчет: Выручка по дням недели для каждого продавца,
@@ -101,7 +80,6 @@ order by
 -- Сортируем результаты:
 -- Сначала по порядковому номеру дня недели (понедельник=1, воскресенье=7),
 -- Затем по имени продавца в алфавитном порядке.
-
 select
     case
         when c.age between 16 and 25 then '16-25'
@@ -122,16 +100,14 @@ order by age_category;
 -- Считаем количество покупателей в каждой категории,
 -- Группируем по возрастным категориям для агрегации
 -- Сортируем по возрастным категориям для упорядоченного вывода.
-
 select
-    to_char(s.sale_date, 'YYYY-MM') as sales_month,
+    to_char(s.sale_date, 'YYYY-MM') as date,
     count(distinct s.customer_id) as total_customers,
     round(sum(s.quantity * p.price), 0) as income
 from sales s
-inner join products p
-    on s.product_id = p.product_id
+join products p on s.product_id = p.product_id
 group by to_char(s.sale_date, 'YYYY-MM')
-order by sales_month asc;
+order by date asc;
 -- Отчет: Покупатели и выручка по месяцам
 -- Форматируем дату продажи в формат ГОД-МЕСЯЦ
 -- Считаем количество уникальных покупателей за месяц
@@ -139,7 +115,6 @@ order by sales_month asc;
 -- Соединяем с таблицей продуктов для получения цен
 -- Группируем по месяцам для агрегации данных
 -- Сортируем по дате в возрастающем порядке
-
 with first_purchases as (
     select
         c.customer_id,
@@ -147,27 +122,17 @@ with first_purchases as (
         s.sale_date,
         concat(e.first_name, ' ', e.last_name) as seller,
         p.price,
-        row_number() over (
-            partition by c.customer_id
-            order by s.sale_date
-        ) as purchase_rank
+        row_number() over (partition by c.customer_id order by s.sale_date) as purchase_rank
     from customers c
-    inner join sales s
-        on c.customer_id = s.customer_id
-    inner join employees e
-        on s.sales_person_id = e.employee_id
-    inner join products p
-        on s.product_id = p.product_id
-)
-
+    join sales s on c.customer_id = s.customer_id
+    join employees e on s.sales_person_id = e.employee_id
+    join products p on s.product_id = p.product_id)
 select
     customer,
     sale_date,
     seller
 from first_purchases
-where
-    purchase_rank = 1
-    and price = 0
+where purchase_rank = 1 and price = 0
 order by customer_id;
 -- Отчет: Покупатели с первой акционной покупкой,
 -- Объединяем имя и фамилию покупателя,
