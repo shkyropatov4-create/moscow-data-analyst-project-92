@@ -44,7 +44,7 @@ with seller_stats as (
         concat(e.first_name, ' ', e.last_name) as seller,
         count(s.sales_id) as total_operations,
         sum(p.price * s.quantity) as total_income,
-        avg(sum(p.price * s.quantity) / count(s.sales_id)) as avg_income
+        avg(p.price * s.quantity) / count(s.sales_id) as avg_income
     from sales as s
     inner join employees as e
         on s.sales_person_id = e.employee_id
@@ -179,3 +179,4 @@ select
 from first_purchases
 where purchase_rank = 1
 order by customer_id;
+
