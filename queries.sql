@@ -45,7 +45,9 @@ overall_avg as (
         on s.product_id = p.product_id
 )
 
-select ss.seller, ss.avg_income as average_income
+select
+    ss.seller,
+    ss.avg_income as average_income
 from seller_stats as ss
 cross join overall_avg as oa
 where
@@ -79,7 +81,7 @@ select
         when age between 26 and 40 then '26-40'
         else '40+'
     end as age_category,
-    count(customer_id) as age_count
+    count(*) as age_count
 from customers
 group by age_category
 order by age_category;
@@ -97,13 +99,10 @@ order by sale_month asc;
 
 -- Запрос 7: Покупатели с первой акционной покупкой
 with first_purchases as (
-    select
-        c.customer_id,
-        c.first_name as customer_first_name,
-        c.last_name as customer_last_name,
+    select c.customer_id,
+        concat(c.first_name, ' ', c.last_name) as customer,
         s.sale_date,
-        e.first_name as seller_first_name,
-        e.last_name as seller_last_name,
+        concat(e.first_name, ' ', e.last_name) as seller,
         p.price,
         row_number() over (
             partition by c.customer_id
@@ -118,12 +117,7 @@ with first_purchases as (
         on s.product_id = p.product_id
 )
 
-select
-    customer_first_name,
-    customer_last_name,
-    sale_date,
-    seller_first_name,
-    seller_last_name
+select customer, sale_date, seller
 from first_purchases
 where
     purchase_rank = 1
