@@ -2,7 +2,6 @@
 select count(customer_id) as customers_count
 from customers;
 -- Подсчет общего количества клиентов в базе
-
 -- Запрос 2: Топ-10 продавцов по суммарной выручке
 select
     concat(e.first_name, ' ', e.last_name) as seller,
@@ -20,7 +19,6 @@ group by
 order by income desc
 limit 10;
 -- Рейтинг 10 лучших продавцов по общей выручке
-
 -- Запрос 3: Продавцы со средней выручкой ниже общей средней
 with seller_stats as (
     -- Статистика по каждому продавцу
@@ -56,7 +54,6 @@ cross join overall_avg as oa
 where
     ss.avg_income < oa.overall_avg_income
 order by ss.avg_income asc;
-
 -- Запрос 4: Выручка по дням недели для каждого продавца
 select
     concat(e.first_name, ' ', e.last_name) as seller,
@@ -77,7 +74,6 @@ order by
     extract(dow from s.sale_date),
     seller;
 -- Доходность продавцов по дням недели
-
 -- Запрос 5: Возрастные группы покупателей
 select
     case
@@ -90,7 +86,6 @@ from customers
 group by age_category
 order by age_category;
 -- Распределение клиентов по возрастным группам
-
 -- Запрос 6: Покупатели и выручка по месяцам
 select
     to_char(s.sale_date, 'YYYY-MM') as sale_month,
@@ -102,7 +97,6 @@ inner join products as p
 group by to_char(s.sale_date, 'YYYY-MM')
 order by sale_month asc;
 -- Ежемесячная статистика: уникальные клиенты и доход
-
 -- Запрос 7: Покупатели с первой акционной покупкой
 with first_purchases as (
     -- Первые покупки каждого клиента
@@ -124,8 +118,7 @@ with first_purchases as (
     inner join employees as e
         on s.sales_person_id = e.employee_id
     inner join products as p
-        on s.product_id = p.product_id
-)
+        on s.product_id = p.product_id)
 -- Клиенты, чья первая покупка была бесплатной
 select
     first_name,
