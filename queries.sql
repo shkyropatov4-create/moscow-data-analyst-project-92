@@ -45,7 +45,9 @@ overall_avg as (
         on s.product_id = p.product_id
 )
 
-select ss.seller, ss.avg_income as average_income
+select
+    ss.seller,
+    ss.avg_income as average_income
 from seller_stats as ss
 cross join overall_avg as oa
 where
@@ -121,7 +123,10 @@ with first_purchases as (
         on s.product_id = p.product_id
 )
 
-select customer, sale_date, seller
+select
+    customer,
+    sale_date,
+    seller
 from first_purchases
 where
     purchase_rank = 1
