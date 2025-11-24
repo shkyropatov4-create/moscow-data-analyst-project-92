@@ -1,6 +1,5 @@
 -- Запрос 1: Общее количество покупателей
-select
-    count(customer_id) as customers_count
+select count(customer_id) as customers_count
 from customers;
 
 -- Запрос 2: Топ-10 продавцов по суммарной выручке
@@ -40,16 +39,13 @@ with seller_stats as (
 ),
 
 overall_avg as (
-    select
-        floor(avg(p.price * s.quantity)) as overall_avg_income
+    select floor(avg(p.price * s.quantity)) as overall_avg_income
     from sales as s
     inner join products as p
         on s.product_id = p.product_id
 )
 
-select
-    ss.seller,
-    ss.avg_income as average_income
+select ss.seller, ss.avg_income as average_income
 from seller_stats as ss
 cross join overall_avg as oa
 where
@@ -83,7 +79,7 @@ select
         when age between 26 and 40 then '26-40'
         else '40+'
     end as age_category,
-    count(*) as age_count
+    count(customer_id) as age_count
 from customers
 group by
     case
@@ -125,10 +121,7 @@ with first_purchases as (
         on s.product_id = p.product_id
 )
 
-select
-    customer,
-    sale_date,
-    seller
+select customer, sale_date, seller
 from first_purchases
 where
     purchase_rank = 1
