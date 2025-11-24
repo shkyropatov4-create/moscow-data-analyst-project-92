@@ -179,4 +179,3 @@ select
 from first_purchases
 where purchase_rank = 1
 order by customer_id;
-
