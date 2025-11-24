@@ -45,9 +45,7 @@ overall_avg as (
         on s.product_id = p.product_id
 )
 
-select
-    ss.seller,
-    ss.avg_income as average_income
+select ss.seller, ss.avg_income as average_income
 from seller_stats as ss
 cross join overall_avg as oa
 where
@@ -83,12 +81,7 @@ select
     end as age_category,
     count(customer_id) as age_count
 from customers
-group by
-    case
-        when age between 16 and 25 then '16-25'
-        when age between 26 and 40 then '26-40'
-        else '40+'
-    end
+group by age_category
 order by age_category;
 
 -- Запрос 6: Покупатели и выручка по месяцам
@@ -123,10 +116,7 @@ with first_purchases as (
         on s.product_id = p.product_id
 )
 
-select
-    customer,
-    sale_date,
-    seller
+select customer, sale_date, seller
 from first_purchases
 where
     purchase_rank = 1
