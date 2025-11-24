@@ -44,7 +44,7 @@ with seller_stats as (
         concat(e.first_name, ' ', e.last_name) as seller,
         count(s.sales_id) as total_operations,
         sum(p.price * s.quantity) as total_income,
-        floor(sum(p.price * s.quantity) / count(s.sales_id)) as avg_income
+        avg(sum(p.price * s.quantity) / count(s.sales_id)) as avg_income
     from sales as s
     inner join employees as e
         on s.sales_person_id = e.employee_id
@@ -96,9 +96,9 @@ group by
     e.first_name,
     e.last_name,
     to_char(s.sale_date, 'day'),
-    extract(dow from s.sale_date)
+    extract(isodow from s.sale_date)
 order by
-    extract(dow from s.sale_date),
+    extract(isodow from s.sale_date),
     seller;
 
 -- Запрос 5: Возрастные группы покупателей
@@ -165,6 +165,7 @@ with first_purchases as (
         on s.sales_person_id = e.employee_id
     inner join products as p
         on s.product_id = p.product_id
+    where p.price = 0  -- фильтр перемещен в CTE
 )
 
 select
@@ -176,7 +177,5 @@ select
     concat(first_name, ' ', last_name) as customer,
     concat(seller_first_name, ' ', seller_last_name) as seller
 from first_purchases
-where
-    purchase_rank = 1
-    and price = 0
+where purchase_rank = 1
 order by customer_id;
