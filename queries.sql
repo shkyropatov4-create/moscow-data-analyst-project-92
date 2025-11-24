@@ -166,26 +166,22 @@ order by
 
 with first_purchases as (
     select
-        c.customer_id,
-        concat(c.first_name, ' ', c.last_name) as customer,
-        s.sale_date,
-        concat(e.first_name, ' ', e.last_name) as seller,
-        p.price,
-        row_number() over (
-            partition by c.customer_id
-            order by s.sale_date
-        ) as purchase_rank
-    from
-        customers as c
-    inner join
-        sales as s
-        on c.customer_id = s.customer_id
-    inner join
-        employees as e
-        on s.sales_person_id = e.employee_id
-    inner join
-        products as p
-        on s.product_id = p.product_id
+    c.customer_id,
+    concat(c.first_name, ' ', c.last_name) as customer,
+    s.sale_date,
+    concat(e.first_name, ' ', e.last_name) as seller,
+    p.price,
+    row_number() over (
+        partition by c.customer_id
+        order by s.sale_date
+    ) as purchase_rank
+from customers c
+inner join sales s
+    on c.customer_id = s.customer_id
+inner join employees e
+    on s.sales_person_id = e.employee_id
+inner join products p
+    on s.product_id = p.product_id
 )
 
 select
