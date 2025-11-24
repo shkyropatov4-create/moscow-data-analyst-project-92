@@ -1,7 +1,7 @@
 -- Запрос 1: Общее количество покупателей
 select
     count(customer_id) as customers_count
-from customers as c;
+from customers;
 
 -- Запрос 2: Топ-10 продавцов по суммарной выручке
 select
@@ -79,16 +79,16 @@ order by
 -- Запрос 5: Возрастные группы покупателей
 select
     case
-        when c.age between 16 and 25 then '16-25'
-        when c.age between 26 and 40 then '26-40'
+        when age between 16 and 25 then '16-25'
+        when age between 26 and 40 then '26-40'
         else '40+'
     end as age_category,
     count(*) as age_count
-from customers as c
+from customers
 group by
     case
-        when c.age between 16 and 25 then '16-25'
-        when c.age between 26 and 40 then '26-40'
+        when age between 16 and 25 then '16-25'
+        when age between 26 and 40 then '26-40'
         else '40+'
     end
 order by age_category;
