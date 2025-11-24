@@ -99,10 +99,13 @@ order by sale_month asc;
 
 -- Запрос 7: Покупатели с первой акционной покупкой
 with first_purchases as (
-    select c.customer_id,
-        concat(c.first_name, ' ', c.last_name) as customer,
+    select
+        c.customer_id,
+        c.first_name,
+        c.last_name,
         s.sale_date,
-        concat(e.first_name, ' ', e.last_name) as seller,
+        e.first_name as seller_first_name,
+        e.last_name as seller_last_name,
         p.price,
         row_number() over (
             partition by c.customer_id
@@ -117,7 +120,14 @@ with first_purchases as (
         on s.product_id = p.product_id
 )
 
-select customer, sale_date, seller
+select
+    first_name,
+    last_name,
+    sale_date,
+    seller_first_name,
+    seller_last_name,
+    concat(first_name, ' ', last_name) as customer,
+    concat(seller_first_name, ' ', seller_last_name) as seller
 from first_purchases
 where
     purchase_rank = 1
