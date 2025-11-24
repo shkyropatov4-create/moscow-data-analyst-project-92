@@ -99,9 +99,11 @@ order by sale_month asc;
 with first_purchases as (
     select
         c.customer_id,
-        concat(c.first_name, ' ', c.last_name) as customer,
+        c.first_name as customer_first_name,
+        c.last_name as customer_last_name,
         s.sale_date,
-        concat(e.first_name, ' ', e.last_name) as seller,
+        e.first_name as seller_first_name,
+        e.last_name as seller_last_name,
         p.price,
         row_number() over (
             partition by c.customer_id
@@ -116,7 +118,12 @@ with first_purchases as (
         on s.product_id = p.product_id
 )
 
-select customer, sale_date, seller
+select
+    customer_first_name,
+    customer_last_name,
+    sale_date,
+    seller_first_name,
+    seller_last_name
 from first_purchases
 where
     purchase_rank = 1
